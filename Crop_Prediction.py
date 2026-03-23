@@ -3,6 +3,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score
 
 cd=pd.read_csv('crop_yield.csv')
 #Gives the number of rows and columns
@@ -60,7 +64,31 @@ data.corr()
 sns.heatmap(data.corr(), annot =True, fmt='.4f')
 plt.title('Correlation Matrix')
 
+#Scaling all the values using StandardScaler so that no column overshadows another
+col_scaled=['Area','Production','Annual_Rainfall','Fertilizer','Pesticide','Yield']
+scaler=StandardScaler()
+cd[col_scaled] = scaler.fit_transform(cd[col_scaled])
+print(cd.head())
 
+# Dropped a column that was not relevant to the model
+cd.drop('Crop_Year',axis=1,inplace=True)
+# Performed LabelEncoder on Crop & State columns and OneHotEncoding on Season column 
+le =LabelEncoder()
+cd["Crop"]=le.fit_transform((cd["Crop"]))
+cd["State"]=le.fit_transform((cd["State"]))
+cd = pd.get_dummies(cd,columns=["Season"],drop_first=True)
 
+# Train test split 80/20
+X=cd.drop('Yield', axis=1)
+y=cd['Yield']
+X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.2,random_state=42,shuffle=True)
+print(f"Training Shape: {X_train.shape}\nTesting Shape: {X_test.shape}")
+
+# Linear Regression our baseline model
+model=LinearRegression()
+model.fit(X_train,y_train)
+baseline_pred=model.predict(X_test)
+baseline_score=r2_score(y_test, baseline_pred)
+print(baseline_score)
 
 
