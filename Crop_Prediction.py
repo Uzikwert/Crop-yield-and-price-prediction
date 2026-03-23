@@ -29,7 +29,24 @@ sns.histplot(x=cd['Season'])
 plt.title("Histogram of seasons")
 plt.show() 
 
-sns.boxplot(x=cd["State"],y=cd["Crop_Year"])
+cd.groupby('State')['Annual_Rainfall'].mean().plot(kind='pie')
+plt.title('Statewise Annual Rainfall')
+plt.tight_layout()
+plt.show()
+
+cd.groupby('Crop_Year')['Yield'].mean().plot(kind='line', marker='o')
+plt.title('Average Yield Over Years')
+plt.xlabel('Year')
+plt.show()
+
+cd.groupby('State')['Production'].sum().sort_values(ascending=False).head(10).plot(kind='bar')
+plt.title('Top 10 States by Total Production')
+plt.show()
+
+plt.plot(cd['Annual_Rainfall'], cd['Yield'], alpha=0.3)
+plt.xlabel('Annual Rainfall')
+plt.ylabel('Yield')
+plt.title('Rainfall vs Yield')
 plt.show()
 
 data = cd.drop(['State','Season','Crop'], axis = 1)
